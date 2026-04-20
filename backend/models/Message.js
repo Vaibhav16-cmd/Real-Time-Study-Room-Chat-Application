@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+﻿const mongoose = require("mongoose");
 
 const messageSchema = new mongoose.Schema(
   {
@@ -15,9 +15,33 @@ const messageSchema = new mongoose.Schema(
     content: {
       type: String,
       required: true
+    },
+    moderation: {
+      status: {
+        type: String,
+        enum: ["approved", "flagged", "removed"],
+        default: "approved"
+      },
+      category: {
+        type: String,
+        default: null
+      },
+      reason: {
+        type: String,
+        default: null
+      },
+      score: {
+        type: Number,
+        default: 0
+      },
+      reviewedAt: {
+        type: Date,
+        default: null
+      }
     }
   },
   { timestamps: true }
 );
 
 module.exports = mongoose.model("Message", messageSchema);
+

@@ -1,8 +1,13 @@
 {
-  "dependencies": {
-    "bcryptjs": "^3.0.3",
-    "cors": "^2.8.6",
-    "jsonwebtoken": "^9.0.3",
-    "socket.io": "^4.8.3"
+  "name": "real-time-study-room",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "dev:backend": "npm --prefix backend run dev",
+    "start:backend": "npm --prefix backend run start",
+    "dev:frontend": "npm --prefix frontend run dev",
+    "start:frontend": "npm --prefix frontend run dev",
+    "check:backend": "node --check backend/server.js",
+    "check:frontend": "node --check frontend/js/app.js"
   }
 }

@@ -1,24 +1,44 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html>
 <head>
-<title>Login</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NexChat Login</title>
+  <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body class="auth-body">
+  <main class="auth-shell">
+    <div class="brand-mark auth-brand-mark">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M4 7.5A3.5 3.5 0 0 1 7.5 4h5A3.5 3.5 0 0 1 16 7.5v1.1l2.9-1.86a1.5 1.5 0 0 1 2.31 1.26v7.98a1.5 1.5 0 0 1-2.31 1.26L16 15.4v1.1a3.5 3.5 0 0 1-3.5 3.5h-5A3.5 3.5 0 0 1 4 16.5z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <h1>NexChat</h1>
+    <p class="subtitle center-text">Video calls &amp; chat, kept clean by AI</p>
 
-<link rel="stylesheet" href="style.css">
+    <section class="auth-card">
+      <div class="auth-tabs">
+        <button class="auth-tab active" type="button">Sign In</button>
+        <button class="auth-tab" type="button" onclick="window.location.href='/register'">Create Account</button>
+      </div>
 
-<div class="container">
-<h2>Login</h2>
+      <div class="form-stack">
+        <label for="email">Email</label>
+        <input id="email" class="field-input" type="email" placeholder="you@example.com">
 
-<input id="email" placeholder="Email">
-<input id="password" type="password" placeholder="Password">
+        <label for="password">Password</label>
+        <div class="password-box">
+          <input id="password" class="field-input" type="password" placeholder="••••••••">
+          <button class="password-toggle" type="button" onclick="togglePassword('password', this)">Show</button>
+        </div>
 
-<button onclick="login()">Login</button>
-
-<p id="msg"></p>
-</div>
-
-<script src="js/app.js"></script>
-
+        <button class="primary-btn full-width" type="button" onclick="login()">Sign In</button>
+        <p class="guardian-note">AI Guardian watches messages for risky language.</p>
+        <p id="msg" class="status-text"></p>
+      </div>
+    </section>
+  </main>
+  <script src="js/app.js"></script>
 </body>
 </html>
+

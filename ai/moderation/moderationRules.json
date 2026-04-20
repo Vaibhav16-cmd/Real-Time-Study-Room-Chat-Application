@@ -1,0 +1,14 @@
+[
+  {
+    "category": "explicit_language",
+    "reason": "Contains profanity or offensive language.",
+    "words": ["fuck", "fucking", "motherfucker", "motherfuckeer", "shit", "bitch", "asshole", "bastard"],
+    "score": 0.92
+  },
+  {
+    "category": "harassment",
+    "reason": "Looks like targeted harassment or abuse.",
+    "words": ["idiot", "stupid", "moron", "kill yourself"],
+    "score": 0.78
+  }
+]
