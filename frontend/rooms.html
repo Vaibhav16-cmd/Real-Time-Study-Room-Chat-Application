@@ -33,13 +33,41 @@
       <section class="rooms-hero-grid">
         <section class="hero-panel compact-hero">
           <span class="capsule-label">AI-POWERED MODERATION</span>
-          <h1>Join a room fast, <span>or launch your own.</span></h1>
-          <p>After login, this page is your room directory. Browse public and private rooms below, or create a new room and jump straight into the call.</p>
+          <h1>Pick a room, <span>join in seconds.</span></h1>
+          <p>This is your shared room directory. Join an existing public or private room, or create a new one and enter it immediately.</p>
+
+          <div class="hero-stat-row">
+            <article class="hero-stat-card">
+              <strong id="totalRoomsCount">0</strong>
+              <span>Total rooms</span>
+            </article>
+            <article class="hero-stat-card">
+              <strong id="publicRoomsCount">0</strong>
+              <span>Public</span>
+            </article>
+            <article class="hero-stat-card">
+              <strong id="privateRoomsCount">0</strong>
+              <span>Private</span>
+            </article>
+          </div>
         </section>
 
         <aside class="hero-side-card">
-          <h2>Available rooms</h2>
-          <p>Public rooms can be joined instantly. Private rooms ask for a password before entry.</p>
+          <h2>Find the right room</h2>
+          <p>Use search and filters to join an existing room. Public rooms are instant. Private rooms ask for a password.</p>
+
+          <div class="directory-controls">
+            <div class="search-shell">
+              <input id="roomSearchInput" class="field-input" type="text" placeholder="Search by room name..." oninput="updateRoomSearch(this.value)">
+            </div>
+
+            <div class="filter-row">
+              <button id="filterAll" class="filter-chip active" type="button" onclick="setRoomFilter('all')">All</button>
+              <button id="filterPublic" class="filter-chip" type="button" onclick="setRoomFilter('public')">Public</button>
+              <button id="filterPrivate" class="filter-chip" type="button" onclick="setRoomFilter('private')">Private</button>
+            </div>
+          </div>
+
           <button class="primary-btn full-width" type="button" onclick="createRoomPrompt()">Create &amp; Enter Room</button>
         </aside>
       </section>

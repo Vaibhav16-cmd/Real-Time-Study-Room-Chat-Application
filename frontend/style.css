@@ -34,6 +34,7 @@ body {
     radial-gradient(circle at top, rgba(47, 102, 255, 0.16), transparent 32%),
     linear-gradient(180deg, #090a10 0%, #05060a 100%);
   color: var(--text);
+  overflow-x: hidden;
 }
 
 a {
@@ -286,8 +287,11 @@ button {
 }
 
 .rooms-body,
-.chat-body {
+.chat-body,
+.moderation-body {
   padding: 0;
+  min-height: 100vh;
+  overflow-y: auto;
 }
 
 .app-shell,
@@ -360,7 +364,7 @@ button {
 .page-content {
   width: min(1200px, calc(100% - 40px));
   margin: 0 auto;
-  padding: 44px 0 64px;
+  padding: 36px 0 180px;
 }
 
 .rooms-hero-grid {
@@ -393,9 +397,9 @@ button {
 }
 
 .hero-panel h1 {
-  font-size: clamp(3rem, 6vw, 4.9rem);
-  line-height: 1.02;
-  margin: 20px 0;
+  font-size: clamp(2.55rem, 5vw, 4rem);
+  line-height: 1.05;
+  margin: 16px 0 14px;
 }
 
 .hero-panel h1 span {
@@ -404,8 +408,8 @@ button {
 
 .hero-panel p {
   color: var(--muted);
-  font-size: 1.65rem;
-  line-height: 1.45;
+  font-size: 1.18rem;
+  line-height: 1.7;
 }
 
 .hero-side-card {
@@ -420,6 +424,31 @@ button {
   gap: 14px;
 }
 
+.hero-stat-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 26px;
+}
+
+.hero-stat-card {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 18px;
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.hero-stat-card strong {
+  font-size: 1.8rem;
+}
+
+.hero-stat-card span {
+  color: var(--muted);
+}
+
 .hero-side-card h2,
 .rooms-section-heading h2 {
   margin: 0;
@@ -429,6 +458,37 @@ button {
 .rooms-section-heading p {
   margin: 0;
   color: var(--muted);
+}
+
+.directory-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.search-shell .field-input {
+  margin-bottom: 0;
+}
+
+.filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.filter-chip {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--muted);
+  border-radius: 999px;
+  padding: 10px 14px;
+  font-weight: 600;
+}
+
+.filter-chip.active {
+  border-color: rgba(91, 156, 255, 0.45);
+  background: rgba(47, 102, 255, 0.18);
+  color: white;
 }
 
 .empty-card,
@@ -491,14 +551,25 @@ button {
 }
 
 .room-card h3 {
-  margin: 20px 0 10px;
-  font-size: 2rem;
+  margin: 18px 0 10px;
+  font-size: 1.65rem;
+  line-height: 1.2;
+  word-break: break-word;
 }
 
 .room-card p {
   color: var(--muted);
   line-height: 1.5;
-  min-height: 54px;
+  min-height: 48px;
+}
+
+.empty-inline-card {
+  grid-column: 1 / -1;
+  padding: 22px;
+  border-radius: 24px;
+  border: 1px dashed rgba(255, 255, 255, 0.14);
+  color: var(--muted);
+  background: rgba(255, 255, 255, 0.03);
 }
 
 .room-meta {
@@ -607,6 +678,28 @@ button {
   align-items: center;
 }
 
+.room-notice {
+  margin: 0 0 18px;
+  padding: 14px 18px;
+  border-radius: 18px;
+  border: 1px solid rgba(91, 156, 255, 0.28);
+  background: rgba(47, 102, 255, 0.14);
+  color: #dbe8ff;
+  font-weight: 600;
+}
+
+.room-notice.warning {
+  border-color: rgba(201, 124, 18, 0.45);
+  background: rgba(201, 124, 18, 0.14);
+  color: #ffd595;
+}
+
+.room-notice.danger {
+  border-color: rgba(255, 71, 71, 0.48);
+  background: rgba(255, 71, 71, 0.16);
+  color: #ffb3b3;
+}
+
 .preview-card {
   min-height: 420px;
   display: flex;
@@ -628,8 +721,10 @@ button {
 }
 
 .prejoin-info h1 {
-  font-size: clamp(2.6rem, 6vw, 4.2rem);
+  font-size: clamp(2.2rem, 4.4vw, 3.6rem);
+  line-height: 1.08;
   margin-bottom: 24px;
+  word-break: break-word;
 }
 
 .presence-card {
@@ -908,7 +1003,7 @@ button {
 .moderation-page {
   width: min(1440px, calc(100% - 40px));
   margin: 0 auto;
-  padding: 34px 0 60px;
+  padding: 34px 0 200px;
 }
 
 .moderation-header {
@@ -994,6 +1089,11 @@ button {
   align-items: start;
 }
 
+.moderation-grid aside {
+  position: sticky;
+  top: 96px;
+}
+
 .section-heading {
   margin-bottom: 16px;
 }
@@ -1071,6 +1171,10 @@ button {
     grid-template-columns: 1fr;
   }
 
+  .moderation-grid aside {
+    position: static;
+  }
+
   .chat-panel {
     min-height: 420px;
   }
@@ -1110,6 +1214,10 @@ button {
 
   .hero-panel p {
     font-size: 1.2rem;
+  }
+
+  .hero-stat-row {
+    grid-template-columns: 1fr;
   }
 
   .chat-panel {

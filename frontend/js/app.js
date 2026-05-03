@@ -9,6 +9,10 @@ let roomUsers = [];
 let currentRoom = null;
 let hasStartedCall = false;
 let pendingPrivateJoinRoomId = null;
+let allRooms = [];
+let roomFilter = "all";
+let roomSearch = "";
+let roomNoticeTimer;
 const rtcConfig = {
   iceServers: [
     { urls: "stun:stun.l.google.com:19302" },
@@ -46,6 +50,22 @@ function setStatus(message, isError = false) {
   statusNode.textContent = message || "";
   statusNode.classList.toggle("error-text", isError);
   statusNode.classList.toggle("success-text", !isError && Boolean(message));
+}
+
+function showRoomNotice(message, tone = "info") {
+  const notice = document.getElementById("roomNotice");
+  if (!notice || !message) {
+    return;
+  }
+
+  notice.textContent = message;
+  notice.className = `room-notice ${tone}`;
+  notice.classList.remove("hidden");
+
+  clearTimeout(roomNoticeTimer);
+  roomNoticeTimer = setTimeout(() => {
+    notice.classList.add("hidden");
+  }, 5000);
 }
 
 function togglePassword(inputId, button) {
@@ -288,11 +308,56 @@ function renderRoomsHeader() {
   }
 }
 
+function formatRoomDate(value) {
+  return new Date(value).toLocaleDateString([], {
+    month: "short",
+    day: "numeric"
+  });
+}
+
+function renderRoomSummary(rooms) {
+  const total = rooms.length;
+  const publicCount = rooms.filter((room) => !room.isPrivate).length;
+  const privateCount = rooms.filter((room) => room.isPrivate).length;
+
+  const totalNode = document.getElementById("totalRoomsCount");
+  const publicNode = document.getElementById("publicRoomsCount");
+  const privateNode = document.getElementById("privateRoomsCount");
+
+  if (totalNode) {
+    totalNode.textContent = String(total);
+  }
+
+  if (publicNode) {
+    publicNode.textContent = String(publicCount);
+  }
+
+  if (privateNode) {
+    privateNode.textContent = String(privateCount);
+  }
+}
+
+function setRoomFilter(nextFilter) {
+  roomFilter = nextFilter;
+
+  document.getElementById("filterAll")?.classList.toggle("active", nextFilter === "all");
+  document.getElementById("filterPublic")?.classList.toggle("active", nextFilter === "public");
+  document.getElementById("filterPrivate")?.classList.toggle("active", nextFilter === "private");
+
+  renderRoomDirectory();
+}
+
+function updateRoomSearch(value) {
+  roomSearch = String(value || "").trim().toLowerCase();
+  renderRoomDirectory();
+}
+
 function renderRoomCard(room) {
   const visibilityLabel = room.isPrivate ? "PRIVATE" : "PUBLIC";
-  const description = room.description || "General discussion for everyone";
+  const description = room.description || (room.isPrivate ? "Invite-only room with password access" : "Open room for calls and chat");
   const count = room.members?.length || 0;
-  const createdAt = new Date(room.createdAt).toLocaleDateString();
+  const createdAt = formatRoomDate(room.createdAt);
+  const memberLabel = `${count} member${count === 1 ? "" : "s"}`;
 
   return `
     <article class="room-card ${room.isPrivate ? "private-room-card" : ""}">
@@ -303,12 +368,51 @@ function renderRoomCard(room) {
       <h3>${escapeHtml(room.name)}</h3>
       <p>${escapeHtml(description)}</p>
       <div class="room-meta">
-        <span>${count} members</span>
+        <span>${memberLabel}</span>
         <span>${createdAt}</span>
       </div>
-      <button class="primary-btn full-width" type="button" onclick="joinRoom('${room._id}', ${room.isPrivate})">Join Room</button>
+      <button class="primary-btn full-width" type="button" onclick="joinRoom('${room._id}', ${room.isPrivate})">${room.isPrivate ? "Join Private Room" : "Join Room"}</button>
     </article>
   `;
+}
+
+function renderRoomDirectory() {
+  const container = document.getElementById("roomsContainer");
+  const emptyState = document.getElementById("roomsEmpty");
+
+  if (!container) {
+    return;
+  }
+
+  const filteredRooms = allRooms.filter((room) => {
+    const matchesFilter =
+      roomFilter === "all" ||
+      (roomFilter === "public" && !room.isPrivate) ||
+      (roomFilter === "private" && room.isPrivate);
+
+    const matchesSearch =
+      !roomSearch ||
+      String(room.name || "").toLowerCase().includes(roomSearch) ||
+      String(room.description || "").toLowerCase().includes(roomSearch);
+
+    return matchesFilter && matchesSearch;
+  });
+
+  if (emptyState) {
+    emptyState.classList.toggle("hidden", allRooms.length > 0);
+  }
+
+  if (!allRooms.length) {
+    container.innerHTML = "";
+    return;
+  }
+
+  if (!filteredRooms.length) {
+    container.innerHTML = '<div class="empty-inline-card">No rooms match your current search or filter.</div>';
+    return;
+  }
+
+  container.innerHTML = filteredRooms.map(renderRoomCard).join("");
 }
 
 async function loadRooms() {
@@ -320,19 +424,9 @@ async function loadRooms() {
   syncRoomAccessUi();
 
   try {
-    const rooms = await request("/api/rooms");
-    const container = document.getElementById("roomsContainer");
-    const emptyState = document.getElementById("roomsEmpty");
-
-    if (!container) {
-      return;
-    }
-
-    container.innerHTML = rooms.map(renderRoomCard).join("");
-
-    if (emptyState) {
-      emptyState.classList.toggle("hidden", rooms.length > 0);
-    }
+    allRooms = await request("/api/rooms");
+    renderRoomSummary(allRooms);
+    renderRoomDirectory();
   } catch (error) {
     console.error(error);
   }
@@ -481,6 +575,9 @@ function addMessage(message) {
   const removedNote = status === "removed"
     ? `<p class="message-reason">Removed by moderation.</p>`
     : "";
+  const bubbleContent = status === "removed"
+    ? "[Message removed by AI Guardian]"
+    : message.content;
 
   item.innerHTML = `
     <div class="message-meta-row">
@@ -488,7 +585,7 @@ function addMessage(message) {
       <span>${formatMessageTime(message.createdAt)}</span>
       ${badge}
     </div>
-    <div class="message-bubble ${status === "removed" ? "removed-bubble" : ""}">${escapeHtml(message.content)}</div>
+    <div class="message-bubble ${status === "removed" ? "removed-bubble" : ""}">${escapeHtml(bubbleContent)}</div>
     ${moderationNote}
     ${removedNote}
   `;
@@ -523,7 +620,8 @@ function bindSocket(roomId) {
   socket.on("connect", () => {
     socket.emit("joinRoom", {
       roomId,
-      name: localStorage.getItem("userName") || "User"
+      name: localStorage.getItem("userName") || "User",
+      userId: localStorage.getItem("userId")
     });
   });
 
@@ -538,6 +636,24 @@ function bindSocket(roomId) {
 
   socket.on("receiveMessage", (message) => {
     addMessage(message);
+  });
+
+  socket.on("moderationWarning", ({ message, banned }) => {
+    addSystemMessage(message);
+    showRoomNotice(message, banned ? "danger" : "warning");
+  });
+
+  socket.on("roomBanStatus", ({ message }) => {
+    showRoomNotice(message, "danger");
+    alert(message);
+    leaveRoom();
+  });
+
+  socket.on("roomAccessDenied", ({ message }) => {
+    showRoomNotice(message, "danger");
+    alert(message);
+    localStorage.removeItem("roomId");
+    window.location.href = "/rooms";
   });
 
   socket.on("user-connected", async (userId) => {

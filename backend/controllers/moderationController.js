@@ -25,7 +25,9 @@ exports.getModerationDashboard = async (req, res) => {
     messages.forEach((message) => {
       const status = message.moderation?.status || "approved";
       summary[status] += 1;
+    });
 
+    flaggedMessages.forEach((message) => {
       const category = message.moderation?.category;
       if (category) {
         summary.categories[category] = (summary.categories[category] || 0) + 1;

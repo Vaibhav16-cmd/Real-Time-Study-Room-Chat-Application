@@ -30,6 +30,56 @@ const roomSchema = new mongoose.Schema(
         type: mongoose.Schema.Types.ObjectId,
         ref: "User"
       }
+    ],
+    moderationStates: [
+      {
+        user: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User",
+          required: true
+        },
+        flaggedCount: {
+          type: Number,
+          default: 0
+        },
+        warningIssuedAt: {
+          type: Date,
+          default: null
+        },
+        isBanned: {
+          type: Boolean,
+          default: false
+        },
+        bannedAt: {
+          type: Date,
+          default: null
+        },
+        banReason: {
+          type: String,
+          default: null
+        },
+        lastFlaggedAt: {
+          type: Date,
+          default: null
+        }
+      }
+    ],
+    bannedUsers: [
+      {
+        user: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User",
+          required: true
+        },
+        bannedAt: {
+          type: Date,
+          default: Date.now
+        },
+        reason: {
+          type: String,
+          default: "Repeated AI moderation violations in this room"
+        }
+      }
     ]
   },
   { timestamps: true }

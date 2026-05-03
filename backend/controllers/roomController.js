@@ -1,4 +1,5 @@
-﻿const Room = require("../models/Room");
+const Room = require("../models/Room");
+const { isUserBannedFromRoom } = require("../services/roomModerationService");
 
 const normalizeString = (value) => (typeof value === "string" ? value.trim() : "");
 const escapeRegex = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -63,6 +64,10 @@ exports.joinRoom = async (req, res) => {
       return res.status(404).json({ message: "Room not found" });
     }
 
+    if (isUserBannedFromRoom(room, req.user._id)) {
+      return res.status(403).json({ message: "You are banned from this room" });
+    }
+
     if (!room.members.some((member) => member.toString() === req.user._id.toString())) {
       room.members.push(req.user._id);
       await room.save();
@@ -82,6 +87,10 @@ exports.getRoomById = async (req, res) => {
 
     if (!room) {
       return res.status(404).json({ message: "Room not found" });
+    }
+
+    if (isUserBannedFromRoom(room, req.user._id)) {
+      return res.status(403).json({ message: "You are banned from this room" });
     }
 
     res.json(room);
@@ -123,6 +132,10 @@ exports.joinPrivateRoom = async (req, res) => {
       return res.status(404).json({ message: "Room not found" });
     }
 
+    if (isUserBannedFromRoom(room, req.user._id)) {
+      return res.status(403).json({ message: "You are banned from this room" });
+    }
+
     if (!room.isPrivate) {
       return res.json({ ok: true });
     }
@@ -137,4 +150,3 @@ exports.joinPrivateRoom = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
-
